@@ -35,6 +35,44 @@ def get_all_user_account():
             return cursor.fetchall()
     finally:
         conn.close()
+def update_user_account(uid, username=None, password=None):
+    conn = connect_db()
+    
+    try:
+        # Prepare the list of updates dynamically
+        updates = []
+        values = []
+        
+        # Check each field and add to the update query if specified
+        if username:
+            updates.append("username = %s")
+            values.append(username)
+        
+        if password:
+            updates.append("password = %s")
+            values.append(password)
+        
+        
+        # Check if there are updates; if not, exit early
+        if not updates:
+            return "No fields to update"
+        
+        # Prepare the full SQL command
+        updates_str = ", ".join(updates)
+        values.append(uid)  # Original uid as the last parameter for the WHERE clause
+        
+        sql = f"UPDATE user_account SET {updates_str} WHERE uid = %s"
+        
+        # Execute the query
+        with conn.cursor() as cursor:
+            cursor.execute(sql, tuple(values))
+        
+        conn.commit()
+        return "Update successful"
+    
+    finally:
+        conn.close()
+
 def add_employee(id, role, fname, mname, lname, email, mid, uid):
     conn = connect_db()
     try:
@@ -112,5 +150,23 @@ def validate_user(username, password):
                     user['role'] = role_data['role']
                     return user
             return None
+    finally:
+        conn.close()
+def menu():
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM dish"
+            cursor.execute(sql)
+            return cursor.fetchall()
+    finally:
+        conn.close()
+def add_contact(eid,contact): 
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "INSERT INTO ecn (eid,contact) VALUES (%s, %s)"
+            cursor.execute(sql, (eid,contact))
+        conn.commit()
     finally:
         conn.close()
