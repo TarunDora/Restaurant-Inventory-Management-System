@@ -4,7 +4,7 @@ from tkinter import messagebox, ttk
 try:
     from b import (
         add_user_account, get_user_account, get_all_user_account,
-        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account,delete_user,delete_employee,update_employee,get_all_sales,sales,get_all_orders,get_orders,add_sales,delete_sales
+        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account,delete_user,delete_employee,update_employee,get_all_sales,sales,get_all_orders,get_orders,add_sales,delete_sales,get_all_ingredients,get_ingredient,get_all_recipe,get_recipe,get_supplier,get_sorder
     )
 except ImportError as e:
     print("Error importing backend functions:", e)
@@ -353,7 +353,6 @@ def admin():
 # Run Tkinter event loop
 def waiter():
     notebook = ttk.Notebook()
-    
     # Function to retrieve all dishes and display in Treeview
     def get_all_dishes():
         for row in dish_table.get_children():
@@ -424,7 +423,7 @@ def waiter():
         except Exception as e:
             messagebox.showerror("Error",str(e))
 
-    '''def get_all_orders_ui():
+    def get_all_orders_ui():
         for row in orders_table.get_children():
             orders_table.delete(row)
         
@@ -434,13 +433,30 @@ def waiter():
         
             if orders:
                 for order in orders:
-                    orders_table.insert("", tk.END, values=(order['sid'],order['dname']))
+                    orders_table.insert("", tk.END, values=(order['sid'],order['dname'],order['status']))
             else:
                 messagebox.showwarning("No Data", "No dishes found.")
         
         except Exception as e:
             messagebox.showerror("Error", f"Error retrieving sales: {str(e)}")
-            print("Detailed Error:", e)'''# Print error details to console for debugging
+            print("Detailed Error:", e)# Print error details to console for debugging
+    def get_orders_ui():
+        for row in orders_table.get_children():
+            orders_table.delete(row)
+        sid=s1_id_entry.get()
+        try:
+            # Retrieve all dishes from menu() function
+            orders = get_orders(sid)
+            #print(orders)
+            if orders:
+                for order in orders:
+                    orders_table.insert("", tk.END, values=(order['sid'],order['dname'],order['status']))
+            else:
+                messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving sales: {str(e)}")
+            print("Detailed Error:", e)# Print error details to console for debugging
     # Creating frames for each tab
     dish_frame = ttk.Frame(notebook)
     sales_frame = ttk.Frame(notebook)
@@ -496,8 +512,210 @@ def waiter():
     for col in sales_columns:
         sales_table.heading(col, text=col)
     sales_table.grid(row=8, column=0, columnspan=2, pady=10)
+    s1_id_label = ttk.Label(orders_frame, text="Sales ID")
+    s1_id_label.grid(row=0, column=0, padx=10, pady=5)
+    s1_id_entry = ttk.Entry(orders_frame)
+    s1_id_entry.grid(row=0, column=1, padx=10, pady=5)
+    get_all_orders_button = ttk.Button(orders_frame, text="Get All Orders", command=get_all_orders_ui)
+    get_all_orders_button.grid(row=1, column=0, columnspan=2, pady=5)
+    get_orders_button = ttk.Button(orders_frame, text="Get Orders", command=get_orders_ui)
+    get_orders_button.grid(row=2, column=0, columnspan=2, pady=5)
+    orders_columns = ('Sales ID','Dish Name')
+    orders_table = ttk.Treeview(orders_frame, columns=orders_columns, show="headings")
+    for col in orders_columns:
+        orders_table.heading(col, text=col)
+    orders_table.grid(row=5, column=0, columnspan=2, pady=10)
 def manager():
-    pass
+    notebook = ttk.Notebook()
+    def get_all_dishes():
+        for row in dish_table.get_children():
+            dish_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            dishes = menu()
+            
+            if dishes:
+                for dish in dishes:
+                    dish_table.insert("", tk.END, values=(dish['dname'],))
+            else:
+                messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving dishes: {str(e)}")
+            print("Detailed Error:", e)
+    def get_all_ingredients_ui():
+        for row in ingredients_table.get_children():
+            ingredients_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            ingredients = get_all_ingredients()
+            
+            if ingredients:
+                for ingredient in ingredients:
+                    ingredients_table.insert("", tk.END, values=(ingredient['name'],ingredient['quantity'],ingredient['cpu'],ingredient['rl'],ingredient['edate'],ingredient['sid'],ingredient['status']))
+            else:
+                messagebox.showwarning("No Data", "No ingredients found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving ingredients: {str(e)}")
+            print("Detailed Error:", e)
+    def get_ingredient_ui():
+        for row in ingredients_table.get_children():
+            ingredients_table.delete(row)
+        name=i_entry.get()
+        try:
+            # Retrieve all dishes from menu() function
+            ingredients = get_ingredient(name)
+            
+            if ingredients:
+                    ingredients_table.insert("", tk.END, values=(ingredients['name'],ingredients['quantity'],ingredients['cpu'],ingredients['rl'],ingredients['edate'],ingredients['sid'],ingredients['status']))
+            else:
+                messagebox.showwarning("No Data", "No ingredients found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving ingredients: {str(e)}")
+            print("Detailed Error:", e)
+    def get_all_recipe_ui():
+        for row in recipe_table.get_children():
+            recipe_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            recipe = get_all_recipe()
+            
+            if recipe:
+                for i in recipe:
+                    recipe_table.insert("", tk.END, values=(i['dname'],i['iname'],i['quantity']))
+            else:
+                messagebox.showwarning("No Data", "No recipe found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving recipe: {str(e)}")
+            print("Detailed Error:", e)
+    def get_recipe_ui():
+        for row in recipe_table.get_children():
+            recipe_table.delete(row)
+        dname=d_entry.get()
+        try:
+            # Retrieve all dishes from menu() function
+            recipe = get_recipe(dname)
+            
+            if recipe:
+                for i in recipe:
+                    recipe_table.insert("", tk.END, values=(i['dname'],i['iname'],i['quantity']))
+            else:
+                messagebox.showwarning("No Data", "No recipe found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving recipe: {str(e)}")
+            print("Detailed Error:", e)
+    def get_supplier_ui():
+        for row in supplier_table.get_children():
+            supplier_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            suppliers = get_supplier()
+            
+            if suppliers:
+                for i in suppliers:
+                    supplier_table.insert("", tk.END, values=(i['sid'],i['name'],i['email']))
+            else:
+                messagebox.showwarning("No Data", "No suppliers found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving suppliers: {str(e)}")
+            print("Detailed Error:", e)
+    def get_sorder_ui():
+        for row in sorder_table.get_children():
+            sorder_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            sorders = get_sorder()
+            
+            if sorders:
+                for i in sorders:
+                    sorder_table.insert("", tk.END, values=(i['sid'],i['unit'],i['quantity'],i['ingredient'],i['od'],i['dd'],i['exp'],i['price'],i['status']))
+            else:
+                messagebox.showwarning("No Data", "No sorders found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving sorders: {str(e)}")
+            print("Detailed Error:", e)
+    dish_frame = ttk.Frame(notebook)
+    ingredients_frame = ttk.Frame(notebook)
+    recipe_frame = ttk.Frame(notebook)
+    supplier_frame = ttk.Frame(notebook)
+    sorder_frame = ttk.Frame(notebook)
+    notebook.add(dish_frame, text="Menu")
+    notebook.add(ingredients_frame, text="Ingredients")
+    notebook.add(recipe_frame, text="Recipe")
+    notebook.add(supplier_frame, text="Supplier")
+    notebook.add(sorder_frame, text="Supplier Orders")
+    
+    notebook.pack(fill="both", expand=True)
+    dish_label = ttk.Label(dish_frame, text="Dishes")
+    dish_label.grid(row=0, column=0, columnspan=2, pady=10)
+    
+    # Button to load menu
+    get_all_dishes_button = ttk.Button(dish_frame, text="Load Menu", command=get_all_dishes)
+    get_all_dishes_button.grid(row=1, column=0, columnspan=2, pady=5)
+    
+    # Treeview for displaying dishes
+    dish_columns = ('Dish Name',)
+    dish_table = ttk.Treeview(dish_frame, columns=dish_columns, show="headings")
+    for col in dish_columns:
+        dish_table.heading(col, text=col)
+    dish_table.grid(row=3, column=0, columnspan=2, pady=10)
+    i_label = ttk.Label(dish_frame, text="Ingredients")
+    i_label.grid(row=0, column=0, columnspan=2, pady=10)
+    
+    # Button to load menu
+    get_all_ingredients_button = ttk.Button(ingredients_frame, text="Load Inventory", command=get_all_ingredients_ui)
+    get_all_ingredients_button.grid(row=2, column=0, columnspan=2, pady=5)
+    i_label = ttk.Label(ingredients_frame, text="Ingredient")
+    i_label.grid(row=0, column=0, padx=10, pady=5)
+    i_entry = ttk.Entry(ingredients_frame)
+    i_entry.grid(row=0, column=1, padx=10, pady=5)
+    get_ingredients_button = ttk.Button(ingredients_frame, text="Load Ingredient", command=get_ingredient_ui)
+    get_ingredients_button.grid(row=3, column=0, columnspan=2, pady=5)
+    # Treeview for displaying dishes
+    i_columns = ('name','quantity','cpu','rl','edate','sid','status')
+    ingredients_table = ttk.Treeview(ingredients_frame, columns=i_columns, show="headings")
+    for col in i_columns:
+        ingredients_table.heading(col, text=col)
+    ingredients_table.grid(row=4, column=0, columnspan=2, pady=10)
+    d_label = ttk.Label(recipe_frame, text="Dish Name")
+    d_label.grid(row=2, column=0, padx=10, pady=5)
+    d_entry = ttk.Entry(recipe_frame)
+    d_entry.grid(row=2, column=1, padx=10, pady=5)
+    d_columns = ('Dish Name','Ingredient','Quantity')
+    get_all_recipe_button = ttk.Button(recipe_frame, text="All Recipe", command=get_all_recipe_ui)
+    get_all_recipe_button.grid(row=3, column=0, columnspan=2, pady=5)
+    get_recipe_button = ttk.Button(recipe_frame, text="Get Recipe", command=get_recipe_ui)
+    get_recipe_button.grid(row=4, column=0, columnspan=2, pady=5)
+    recipe_table = ttk.Treeview(recipe_frame, columns=d_columns, show="headings")
+    for col in d_columns:
+        recipe_table.heading(col, text=col)
+    recipe_table.grid(row=5, column=0, columnspan=2, pady=10)
+    s_columns=('Supplier ID','Name','Email')
+    get_all_suppliers_button = ttk.Button(supplier_frame, text="All Suppliers", command=get_supplier_ui)
+    get_all_suppliers_button.grid(row=3, column=0, columnspan=2, pady=5)
+    supplier_table = ttk.Treeview(supplier_frame, columns=s_columns, show="headings")
+    for col in s_columns:
+        supplier_table.heading(col, text=col)
+    supplier_table.grid(row=5, column=0, columnspan=2, pady=10)
+    s1_columns=('Supplier ID','Unit','Quantity','Ingredient','order date','delivery date','expiry','price','status')
+    get_all_sorders_button = ttk.Button(sorder_frame, text="All Sorders", command=get_sorder_ui)
+    get_all_sorders_button.grid(row=3, column=0, columnspan=2, pady=5)
+    sorder_table = ttk.Treeview(sorder_frame, columns=s1_columns, show="headings")
+    for col in s1_columns:
+        sorder_table.heading(col, text=col)
+        sorder_table.column(col, width=150)
+    sorder_table.grid(row=5, column=0, columnspan=1, pady=1)
 def verify_login(login_username,login_password):
     """Verify username and password and proceed based on role."""
     username = login_username.get()
@@ -513,7 +731,7 @@ def verify_login(login_username,login_password):
             admin()
         elif user_data['role']=='Waiter':
             messagebox.showinfo("Login Successful", f"Welcome, {user_data['role'].capitalize()}")
-            root.destroy()
+            #root.destroy()
             waiter()
         elif user_data['role']=='Manager':
             messagebox.showinfo("Login Successful", f"Welcome, {user_data['role'].capitalize()}")
@@ -521,7 +739,7 @@ def verify_login(login_username,login_password):
             manager()
         else:
             messagebox.showinfo("Login Failed")
-            root.destroy()  # Close the login window
+            #root.destroy()  # Close the login window
         
         # Display the main application sections
     else:
@@ -532,17 +750,17 @@ def show_login(root):
     #login_window = tk.Toplevel(root)
     #root.title("Login")
     
-    tk.Label(root, text="Username:", fg="black", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Username:", fg="white", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
 
 # Label for Password
-    tk.Label(root, text="Password:", fg="black", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Password:", fg="white", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
 
     # Entry for Username
-    login_username = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
+    login_username = tk.Entry(root, fg="white", font=("Arial", 18), width=30)
     login_username.grid(row=0, column=1, pady=20, padx=20)
 
     # Entry for Password
-    login_password = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
+    login_password = tk.Entry(root, fg="white", font=("Arial", 18), width=30)
     login_password.grid(row=1, column=1, pady=20, padx=20)
 
     # Button to login

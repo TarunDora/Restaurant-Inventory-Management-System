@@ -299,7 +299,7 @@ def get_orders(sid):
     try:
         conn = connect_db()  # Ensure connect_db() is defined and correct
         with conn.cursor() as cursor:
-            sql = "SELECT * FROM sales WHERE sid=%s"
+            sql = "SELECT * FROM orders WHERE sid=%s"
             cursor.execute(sql, (sid,))
             result = cursor.fetchall()  # Only fetch one entry
             #print(result)
@@ -343,8 +343,98 @@ def delete_sales(sid):
             sql = "DELETE FROM sales WHERE sid = %s"
             cursor.execute(sql, (sid,))  # Note the comma to make it a tuple
         conn.commit()  # Ensure changes are committed to the database
-        return "employee deleted successfully"
+        return "Sales deleted successfully"
     except Exception as e:
         return f"Error deleting employee: {e}"
+    finally:
+        conn.close()
+def get_all_ingredients():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM ingredients"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_ingredient(name):
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM ingredients where name=%s"  # Adjust to match your actual column name
+            cursor.execute(sql,(name,))
+            result = cursor.fetchone()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_all_recipe():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM recipe"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_recipe(dname):
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM recipe where dname=%s"  # Adjust to match your actual column name
+            cursor.execute(sql,(dname,))
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_supplier():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM supplier"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_sorder():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM sorder"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
     finally:
         conn.close()
