@@ -72,6 +72,18 @@ def update_user_account(uid, username=None, password=None):
     
     finally:
         conn.close()
+def delete_user(uid):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM user_account WHERE uid = %s"
+            cursor.execute(sql, (uid,))  # Note the comma to make it a tuple
+        conn.commit()  # Ensure changes are committed to the database
+        return "User deleted successfully"
+    except Exception as e:
+        return f"Error deleting user: {e}"
+    finally:
+        conn.close()
 
 def add_employee(id, role, fname, mname, lname, email, mid, uid):
     conn = connect_db()
@@ -105,6 +117,64 @@ def get_all_employee():
             sql = "SELECT * FROM employee"
             cursor.execute(sql)
             return cursor.fetchall()  # Fetches only one row
+    finally:
+        conn.close()
+def update_employee(id, role=None, fname=None,mname=None,lname=None,email=None):
+    conn = connect_db()
+    
+    try:
+        # Prepare the list of updates dynamically
+        updates = []
+        values = []
+        
+        # Check each field and add to the update query if specified
+        if role:
+            updates.append("role = %s")
+            values.append(role)
+        
+        if fname:
+            updates.append("fname = %s")
+            values.append(fname)
+        if mname:
+            updates.append("mname = %s")
+            values.append(mname)
+        if lname:
+            updates.append("lname = %s")
+            values.append(lname)
+        if email:
+            updates.append("email = %s")
+            values.append(email)
+        
+        
+        # Check if there are updates; if not, exit early
+        if not updates:
+            return "No fields to update"
+        
+        # Prepare the full SQL command
+        updates_str = ", ".join(updates)
+        values.append(id)  # Original uid as the last parameter for the WHERE clause
+        
+        sql = f"UPDATE employee SET {updates_str} WHERE uid = %s"
+        
+        # Execute the query
+        with conn.cursor() as cursor:
+            cursor.execute(sql, tuple(values))
+        
+        conn.commit()
+        return "Update successful"
+    
+    finally:
+        conn.close()
+def delete_employee(id):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM employee WHERE uid = %s"
+            cursor.execute(sql, (id,))  # Note the comma to make it a tuple
+        conn.commit()  # Ensure changes are committed to the database
+        return "employee deleted successfully"
+    except Exception as e:
+        return f"Error deleting employee: {e}"
     finally:
         conn.close()
 def get_all_ecn():
@@ -153,14 +223,54 @@ def validate_user(username, password):
     finally:
         conn.close()
 def menu():
-    conn = connect_db()
     try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
         with conn.cursor() as cursor:
-            sql = "SELECT * FROM dish"
+            sql = "SELECT * FROM dish"  # Adjust to match your actual column name
             cursor.execute(sql)
-            return cursor.fetchall()
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
     finally:
         conn.close()
+def get_all_sales():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM sales"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def sales(sid):
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT sid, date, wid FROM sales WHERE sid=%s"
+            cursor.execute(sql, (sid,))
+            result = cursor.fetchone()  # Only fetch one entry
+            #print(result)
+            # Return the tuple directly
+            return result
+    
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_sales_ui()
+    
+    finally:
+        conn.close()
+
+
 def add_contact(eid,contact): 
     conn = connect_db()
     try:
@@ -168,5 +278,73 @@ def add_contact(eid,contact):
             sql = "INSERT INTO ecn (eid,contact) VALUES (%s, %s)"
             cursor.execute(sql, (eid,contact))
         conn.commit()
+    finally:
+        conn.close()
+def get_all_orders():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM orders"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+def get_orders(sid):
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM sales WHERE sid=%s"
+            cursor.execute(sql, (sid,))
+            result = cursor.fetchall()  # Only fetch one entry
+            #print(result)
+            # Return the tuple directly
+            return result
+    
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_sales_ui()
+    
+    finally:
+        conn.close()
+def add_sales(sid, date, wid, dishes):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            # Insert the sale into the sales table
+            sql_sales = "INSERT INTO sales (sid, date, wid) VALUES (%s, %s, %s)"
+            cursor.execute(sql_sales, (sid, date, wid))
+            
+            # Split the comma-separated dishes into a list
+            dish_list = [dish.strip() for dish in dishes.split(',')]
+            
+            # Insert each dish into the orders table with the sales ID
+            sql_orders = "INSERT INTO orders (sid, dname) VALUES (%s, %s)"
+            for dish in dish_list:
+                cursor.execute(sql_orders, (sid, dish))
+        
+        conn.commit()  # Commit both inserts to the database
+    except Exception as e:
+        conn.rollback()  # Rollback in case of error
+        print("Database error:", e)
+        raise e
+    finally:
+        conn.close()
+
+def delete_sales(sid):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM sales WHERE sid = %s"
+            cursor.execute(sql, (sid,))  # Note the comma to make it a tuple
+        conn.commit()  # Ensure changes are committed to the database
+        return "employee deleted successfully"
+    except Exception as e:
+        return f"Error deleting employee: {e}"
     finally:
         conn.close()

@@ -4,7 +4,7 @@ from tkinter import messagebox, ttk
 try:
     from b import (
         add_user_account, get_user_account, get_all_user_account,
-        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account
+        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account,delete_user,delete_employee,update_employee,get_all_sales,sales,get_all_orders,get_orders,add_sales,delete_sales
     )
 except ImportError as e:
     print("Error importing backend functions:", e)
@@ -13,7 +13,7 @@ except ImportError as e:
 root = tk.Tk()
 root.title("Restaurant Inventory Management System")
 root.geometry("800x600")  # Adjust these values as needed
-root.config(bg="yellow")  # Sets the background color of the root window
+root.config()  # Sets the background color of the root window
 
 # Optionally set the minimum size to prevent resizing too small
 root.minsize(600, 400) 
@@ -64,8 +64,15 @@ def admin():
         username=username_entry.get()
         password=password_entry.get()
         try:
-            update_user_account(uid,username,password)
-            messagebox.showinfo(message="Update successful")
+            a=update_user_account(uid,username,password)
+            messagebox.showinfo(message=a)
+        except Exception as e:
+            messagebox.showerror("Error",str(e))
+    def remove_user():
+        uid = user_uid_entry.get()
+        try:
+            a=delete_user(uid)
+            messagebox.showinfo(message=a)
         except Exception as e:
             messagebox.showerror("Error",str(e))
     def add_employee_ui():
@@ -111,7 +118,25 @@ def admin():
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-
+    def change_employee():
+        id = emp_id_entry.get()
+        role=role_entry.get()
+        fname=fname_entry.get()
+        mname=mname_entry.get()
+        lname=lname_entry.get()
+        email=email_entry.get()
+        try:
+            a=update_employee(id,role,fname,mname,lname,email)
+            messagebox.showinfo(message=a)
+        except Exception as e:
+            messagebox.showerror("Error",str(e))
+    def remove_employee():
+        id = emp_id_entry.get()
+        try:
+            a=delete_employee(id)
+            messagebox.showinfo(message=a)
+        except Exception as e:
+            messagebox.showerror("Error",str(e))
     def get_ecn_ui():
         eid = ecn_eid_entry.get()
         try:
@@ -202,6 +227,8 @@ def admin():
     get_all_user_button.grid(row=6, column=0, columnspan=2, pady=5)
     update_user = ttk.Button(user_account_frame, text="Update", command=change_user)
     update_user.grid(row=7, column=0, columnspan=2, pady=5)
+    delete_user1 = ttk.Button(user_account_frame, text="Delete", command=remove_user)
+    delete_user1.grid(row=8, column=0, columnspan=2, pady=5)
     # Create Treeview for displaying User Accounts
     user_account_columns = ('User ID', 'Username', 'Password')
     user_account_table = ttk.Treeview(user_account_frame, columns=user_account_columns, show="headings")
@@ -256,7 +283,10 @@ def admin():
     get_emp_button.grid(row=10, column=0, columnspan=2, pady=5)
     get_all_emp_button = ttk.Button(employee_frame, text="Get All Employees", command=get_all_employee_ui)
     get_all_emp_button.grid(row=9, column=0, columnspan=2, pady=5)
-
+    update_emp1 = ttk.Button(employee_frame, text="Update", command=change_employee)
+    update_emp1.grid(row=11, column=0, columnspan=2, pady=5)
+    delete_emp1 = ttk.Button(employee_frame, text="Delete", command=remove_employee)
+    delete_emp1.grid(row=12, column=0, columnspan=2, pady=5)
     # Create Treeview for displaying Employees
     employee_columns = ('Employee ID', 'Role', 'First Name', 'Middle Name', 'Last Name', 'Email', 'Manager ID', 'User ID')
     employee_table = ttk.Treeview(employee_frame, columns=employee_columns, show="headings")
@@ -276,7 +306,7 @@ def admin():
     employee_table.column('User ID', width=100)  # Make sure this is visible
 
     # Place the Treeview widget in the layout
-    employee_table.grid(row=11, column=0, columnspan=2, pady=10)
+    employee_table.grid(row=13, column=0, columnspan=2, pady=10)
 
     # Emergency Contact UI
     ecn_eid_label = ttk.Label(ecn_frame, text="Employee ID")
@@ -322,27 +352,150 @@ def admin():
     waiter_table.grid(row=4, column=0, columnspan=2, pady=10)
 # Run Tkinter event loop
 def waiter():
-    '''def get_menu():
-        # Clear the existing data in the Treeview
+    notebook = ttk.Notebook()
+    
+    # Function to retrieve all dishes and display in Treeview
+    def get_all_dishes():
         for row in dish_table.get_children():
             dish_table.delete(row)
-
+        
         try:
-            dishes = menu()  # Fetch all waiters data
+            # Retrieve all dishes from menu() function
+            dishes = menu()
+            
             if dishes:
                 for dish in dishes:
-                    dish_table.insert("", tk.END, values=(dish['dname']))
+                    dish_table.insert("", tk.END, values=(dish['dname'],))
             else:
                 messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving dishes: {str(e)}")
+            print("Detailed Error:", e)  # Print error details to console for debugging
+    def get_all_sales_ui():
+        for row in sales_table.get_children():
+            sales_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            sales = get_all_sales()
+        
+            if sales:
+                for sale in sales:
+                    sales_table.insert("", tk.END, values=(sale['sid'],sale['date'],sale['wid']))
+            else:
+                messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving sales: {str(e)}")
+            print("Detailed Error:", e)  # Print error details to console for debugging
+    def get_sales_ui():
+        for row in sales_table.get_children():
+            sales_table.delete(row)
+        sid=s_id_entry.get()
+        try:
+            # Retrieve all dishes from menu() function
+            sales1 = sales(sid)
+            #print(sales1)
+            if sales1:
+                    sales_table.insert("", tk.END, values=(sales1['sid'], sales1['date'], sales1['wid']))
+
+            else:
+                messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving sales: {str(e)}")
+            print("Detailed Error:", e)  # Print error details to console for debugging
+    def add_sales_ui():
+        sid=s_id_entry.get()
+        date=date_entry.get()
+        wid=w_entry.get()
+        dishes = d_entry.get() 
+        try:
+            add_sales(sid,date,wid,dishes)
+            messagebox.showinfo("Success", "Sales added successfully.")  
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        notebook = ttk.Notebook()
-        dishes_frame = ttk.Frame(notebook)
-        notebook.add(dishes_frame, text="Menu")
-        notebook.pack(fill="both", expand=True)
-        dish_columns = ('Dishes')
-        dish_table = ttk.Treeview(dishes_frame, columns=dish_columns, show="headings")'''
-    pass
+    def delete_sales_ui():
+        sid=s_id_entry.get()
+        try:
+            a=delete_sales(sid)
+            messagebox.showinfo(message=a)
+        except Exception as e:
+            messagebox.showerror("Error",str(e))
+
+    '''def get_all_orders_ui():
+        for row in orders_table.get_children():
+            orders_table.delete(row)
+        
+        try:
+            # Retrieve all dishes from menu() function
+            orders = get_all_orders()
+        
+            if orders:
+                for order in orders:
+                    orders_table.insert("", tk.END, values=(order['sid'],order['dname']))
+            else:
+                messagebox.showwarning("No Data", "No dishes found.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Error retrieving sales: {str(e)}")
+            print("Detailed Error:", e)'''# Print error details to console for debugging
+    # Creating frames for each tab
+    dish_frame = ttk.Frame(notebook)
+    sales_frame = ttk.Frame(notebook)
+    orders_frame = ttk.Frame(notebook)
+    notebook.add(dish_frame, text="Menu")
+    notebook.add(sales_frame, text="Sales")
+    notebook.add(orders_frame, text="Orders")
+    
+    notebook.pack(fill="both", expand=True)
+
+    dish_label = ttk.Label(dish_frame, text="Dishes")
+    dish_label.grid(row=0, column=0, columnspan=2, pady=10)
+    
+    # Button to load menu
+    get_all_dishes_button = ttk.Button(dish_frame, text="Load Menu", command=get_all_dishes)
+    get_all_dishes_button.grid(row=1, column=0, columnspan=2, pady=5)
+    
+    # Treeview for displaying dishes
+    dish_columns = ('Dish Name',)
+    dish_table = ttk.Treeview(dish_frame, columns=dish_columns, show="headings")
+    for col in dish_columns:
+        dish_table.heading(col, text=col)
+    dish_table.grid(row=3, column=0, columnspan=2, pady=10)
+    s_id_label = ttk.Label(sales_frame, text="Sales ID")
+    s_id_label.grid(row=0, column=0, padx=10, pady=5)
+    s_id_entry = ttk.Entry(sales_frame)
+    s_id_entry.grid(row=0, column=1, padx=10, pady=5)
+
+    date_label = ttk.Label(sales_frame, text="Date")
+    date_label.grid(row=1, column=0, padx=10, pady=5)
+    date_entry = ttk.Entry(sales_frame)
+    date_entry.grid(row=1, column=1, padx=10, pady=5)
+
+    w_label = ttk.Label(sales_frame, text="Waiter ID")
+    w_label.grid(row=2, column=0, padx=10, pady=5)
+    w_entry = ttk.Entry(sales_frame)
+    w_entry.grid(row=2, column=1, padx=10, pady=5)
+    d_label = ttk.Label(sales_frame, text="Dishes")
+    d_label.grid(row=3, column=0, padx=10, pady=5)
+    d_entry = ttk.Entry(sales_frame)
+    d_entry.grid(row=3, column=1, padx=10, pady=5)
+    get_all_sales_button = ttk.Button(sales_frame, text="Get All Sales", command=get_all_sales_ui)
+    get_all_sales_button.grid(row=4, column=0, columnspan=2, pady=5)
+    get_sales_button = ttk.Button(sales_frame, text="Get Sales", command=get_sales_ui)
+    
+    get_sales_button.grid(row=5, column=0, columnspan=2, pady=5)
+    add_sales_button = ttk.Button(sales_frame, text="Add Sales", command=add_sales_ui)
+    add_sales_button.grid(row=6, column=0, columnspan=2, pady=5)
+    delete_sales_button = ttk.Button(sales_frame, text="Delete Sales", command=delete_sales_ui)
+    delete_sales_button.grid(row=7, column=0, columnspan=2, pady=5)
+    sales_columns = ('Sales ID','Date','Waiter ID')
+    sales_table = ttk.Treeview(sales_frame, columns=sales_columns, show="headings")
+    for col in sales_columns:
+        sales_table.heading(col, text=col)
+    sales_table.grid(row=8, column=0, columnspan=2, pady=10)
 def manager():
     pass
 def verify_login(login_username,login_password):
@@ -379,21 +532,21 @@ def show_login(root):
     #login_window = tk.Toplevel(root)
     #root.title("Login")
     
-    tk.Label(root, text="Username:", bg="lightblue", fg="black", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Username:", fg="black", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
 
 # Label for Password
-    tk.Label(root, text="Password:", bg="lightblue", fg="black", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Password:", fg="black", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
 
     # Entry for Username
-    login_username = tk.Entry(root, bg="lightblue", fg="black", font=("Arial", 18), width=30)
+    login_username = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
     login_username.grid(row=0, column=1, pady=20, padx=20)
 
     # Entry for Password
-    login_password = tk.Entry(root, bg="lightblue", fg="black", font=("Arial", 18), width=30)
+    login_password = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
     login_password.grid(row=1, column=1, pady=20, padx=20)
 
     # Button to login
-    tk.Button(root, text="Login", bg="lightgreen", fg="black", font=("Arial", 16), width=20,command=lambda: verify_login(login_username, login_password)).grid(row=2, column=0, columnspan=2, pady=30)
+    tk.Button(root, text="Login", fg="black", font=("Arial", 16), width=20,command=lambda: verify_login(login_username, login_password)).grid(row=2, column=0, columnspan=2, pady=30)
 
 show_login(root)   
 # Create Tabbed interface (Notebook)
