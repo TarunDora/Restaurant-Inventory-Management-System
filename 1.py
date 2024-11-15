@@ -4,7 +4,7 @@ from tkinter import messagebox, ttk
 try:
     from b import (
         add_user_account, get_user_account, get_all_user_account,
-        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account,delete_user,delete_employee,update_employee,get_all_sales,sales,get_all_orders,get_orders,add_sales,delete_sales,get_all_ingredients,get_ingredient,get_all_recipe,get_recipe,get_supplier,get_sorder
+        add_employee, get_employee, get_all_employee, get_all_ecn, get_ecn,get_all_waiters,validate_user,menu,add_contact,update_user_account,delete_user,delete_employee,update_employee,get_all_sales,sales,get_all_orders,get_orders,add_sales,delete_sales,get_all_ingredients,get_ingredient,get_all_recipe,get_recipe,get_supplier,get_sorder,add_supplier,update_supplier,delete_supplier,add_sorder
     )
 except ImportError as e:
     print("Error importing backend functions:", e)
@@ -520,7 +520,7 @@ def waiter():
     get_all_orders_button.grid(row=1, column=0, columnspan=2, pady=5)
     get_orders_button = ttk.Button(orders_frame, text="Get Orders", command=get_orders_ui)
     get_orders_button.grid(row=2, column=0, columnspan=2, pady=5)
-    orders_columns = ('Sales ID','Dish Name')
+    orders_columns = ('Sales ID','Dish Name','Status')
     orders_table = ttk.Treeview(orders_frame, columns=orders_columns, show="headings")
     for col in orders_columns:
         orders_table.heading(col, text=col)
@@ -628,6 +628,40 @@ def manager():
         except Exception as e:
             messagebox.showerror("Error", f"Error retrieving suppliers: {str(e)}")
             print("Detailed Error:", e)
+    def add_supplier_ui():
+        sid=sid_entry.get()
+        name=name_entry.get()
+        email=email_entry.get()
+        try:
+            add_supplier(sid,name,email)
+            messagebox.showinfo("Success", "Supplier added successfully.")  
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+    def update_supplier_ui():
+        sid=sid_entry.get()
+        name=name_entry.get()
+        email=email_entry.get()
+        try:
+            update_supplier(sid,name,email)
+            messagebox.showinfo("Success", "Supplier updated successfully.")  
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+    def delete_supplier_ui():
+        sid=sid_entry.get()
+        try:
+            delete_supplier(sid)
+            messagebox.showinfo("Success", "Supplier deleted successfully.")  
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+    def add_supplier_ui():
+        sid=sid_entry.get()
+        name=name_entry.get()
+        email=email_entry.get()
+        try:
+            add_supplier(sid,name,email)
+            messagebox.showinfo("Success", "Supplier added successfully.")  
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
     def get_sorder_ui():
         for row in sorder_table.get_children():
             sorder_table.delete(row)
@@ -645,6 +679,20 @@ def manager():
         except Exception as e:
             messagebox.showerror("Error", f"Error retrieving sorders: {str(e)}")
             print("Detailed Error:", e)
+    def add_sorder_ui():
+        sid1=sid1_entry.get()
+        unit=unit_entry.get()
+        quantity=quantity_entry.get()
+        ingredient=ingredient_entry.get()
+        od=od_entry.get()
+        dd=dd_entry.get()
+        exp=exp_entry.get()
+        price=price_entry.get()
+        try:
+            add_sorder(sid1,unit,quantity,ingredient,od,dd,exp,price)
+            messagebox.showinfo("Success", "Sorder added successfully.")  
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
     dish_frame = ttk.Frame(notebook)
     ingredients_frame = ttk.Frame(notebook)
     recipe_frame = ttk.Frame(notebook)
@@ -679,7 +727,7 @@ def manager():
     i_label = ttk.Label(ingredients_frame, text="Ingredient")
     i_label.grid(row=0, column=0, padx=10, pady=5)
     i_entry = ttk.Entry(ingredients_frame)
-    i_entry.grid(row=0, column=1, padx=10, pady=5)
+    i_entry.grid(row=1, column=0, padx=10, pady=5)
     get_ingredients_button = ttk.Button(ingredients_frame, text="Load Ingredient", command=get_ingredient_ui)
     get_ingredients_button.grid(row=3, column=0, columnspan=2, pady=5)
     # Treeview for displaying dishes
@@ -701,21 +749,129 @@ def manager():
     for col in d_columns:
         recipe_table.heading(col, text=col)
     recipe_table.grid(row=5, column=0, columnspan=2, pady=10)
+    sid_label = ttk.Label(supplier_frame, text="Supplier ID")
+    sid_label.grid(row=1, column=0, padx=10, pady=5)
+    sid_entry = ttk.Entry(supplier_frame)
+    sid_entry.grid(row=1, column=1, padx=10, pady=5)
+    name_label = ttk.Label(supplier_frame, text="Name")
+    name_label.grid(row=2, column=0, padx=10, pady=5)
+    name_entry = ttk.Entry(supplier_frame)
+    name_entry.grid(row=2, column=1, padx=10, pady=5)
+    email_label = ttk.Label(supplier_frame, text="Email")
+    email_label.grid(row=3, column=0, padx=10, pady=5)
+    email_entry = ttk.Entry(supplier_frame)
+    email_entry.grid(row=3, column=1, padx=10, pady=5)
+    add_suppliers_button = ttk.Button(supplier_frame, text="Add Suppliers", command=add_supplier_ui)
+    add_suppliers_button.grid(row=4, column=0, columnspan=2, pady=5)
+    update_suppliers_button = ttk.Button(supplier_frame, text="Update Suppliers", command=update_supplier_ui)
+    update_suppliers_button.grid(row=5, column=0, columnspan=2, pady=5)
+    delete_suppliers_button = ttk.Button(supplier_frame, text="Delete Suppliers", command=delete_supplier_ui)
+    delete_suppliers_button.grid(row=6, column=0, columnspan=2, pady=5)
     s_columns=('Supplier ID','Name','Email')
     get_all_suppliers_button = ttk.Button(supplier_frame, text="All Suppliers", command=get_supplier_ui)
-    get_all_suppliers_button.grid(row=3, column=0, columnspan=2, pady=5)
+    get_all_suppliers_button.grid(row=7, column=0, columnspan=2, pady=5)
     supplier_table = ttk.Treeview(supplier_frame, columns=s_columns, show="headings")
     for col in s_columns:
         supplier_table.heading(col, text=col)
-    supplier_table.grid(row=5, column=0, columnspan=2, pady=10)
+    supplier_table.grid(row=8, column=0, columnspan=2, pady=10)
+    '''sid1_label = ttk.Label(sorder_frame, text="Supplier ID")
+    sid1_label.grid(row=1, column=0, padx=1, pady=1)
+    sid1_entry = ttk.Entry(sorder_frame,width=30)
+    sid1_entry.grid(row=1, column=1, padx=1, pady=1)
+    unit_label = ttk.Label(sorder_frame, text="Unit")
+    unit_label.grid(row=2, column=0, padx=10, pady=5)
+    unit_entry = ttk.Entry(sorder_frame)
+    unit_entry.grid(row=2, column=1, padx=10, pady=5)
+    quantity_label = ttk.Label(sorder_frame, text="Quantity")
+    quantity_label.grid(row=3, column=0, padx=10, pady=5)
+    quantity_entry = ttk.Entry(sorder_frame)
+    quantity_entry.grid(row=3, column=1, padx=10, pady=5)
+    ingredient_label = ttk.Label(sorder_frame, text="Quantity")
+    ingredient_label.grid(row=4, column=0, padx=10, pady=5)
+    ingredient_entry = ttk.Entry(sorder_frame)
+    ingredient_entry.grid(row=4, column=1, padx=10, pady=5)
+    od_label = ttk.Label(sorder_frame, text="Order Date")
+    od_label.grid(row=5, column=0, padx=10, pady=5)
+    od_entry = ttk.Entry(sorder_frame)
+    od_entry.grid(row=5, column=1, padx=10, pady=5)
+    dd_label = ttk.Label(sorder_frame, text="Delivery Date")
+    dd_label.grid(row=6, column=0, padx=10, pady=5)
+    dd_entry = ttk.Entry(sorder_frame)
+    dd_entry.grid(row=6, column=1, padx=10, pady=5)
+    exp_label = ttk.Label(sorder_frame, text="Expiry Date")
+    exp_label.grid(row=7, column=0, padx=10, pady=5)
+    exp_entry = ttk.Entry(sorder_frame)
+    exp_entry.grid(row=7, column=1, padx=10, pady=5)
+    price_label = ttk.Label(sorder_frame, text="Price")
+    price_label.grid(row=8, column=0, padx=10, pady=5)
+    price_entry = ttk.Entry(sorder_frame)
+    price_entry.grid(row=8, column=1, padx=10, pady=5)
+    add_sorders_button = ttk.Button(sorder_frame, text="Add Sorders", command=add_sorder_ui)
+    add_sorders_button.grid(row=9, column=0, columnspan=2, pady=5)
     s1_columns=('Supplier ID','Unit','Quantity','Ingredient','order date','delivery date','expiry','price','status')
     get_all_sorders_button = ttk.Button(sorder_frame, text="All Sorders", command=get_sorder_ui)
-    get_all_sorders_button.grid(row=3, column=0, columnspan=2, pady=5)
+    get_all_sorders_button.grid(row=10, column=0, columnspan=2, pady=5)
     sorder_table = ttk.Treeview(sorder_frame, columns=s1_columns, show="headings")
     for col in s1_columns:
         sorder_table.heading(col, text=col)
         sorder_table.column(col, width=150)
-    sorder_table.grid(row=5, column=0, columnspan=1, pady=1)
+    sorder_table.grid(row=11, column=0, columnspan=1, pady=1)'''
+    sid1_label = ttk.Label(sorder_frame, text="Supplier ID")
+    sid1_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
+    sid1_entry = ttk.Entry(sorder_frame, width=20)
+    sid1_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+
+    unit_label = ttk.Label(sorder_frame, text="Unit")
+    unit_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
+    unit_entry = ttk.Entry(sorder_frame, width=20)
+    unit_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+
+    quantity_label = ttk.Label(sorder_frame, text="Quantity")
+    quantity_label.grid(row=3, column=0, padx=5, pady=5, sticky="e")
+    quantity_entry = ttk.Entry(sorder_frame, width=20)
+    quantity_entry.grid(row=3, column=1, padx=5, pady=5, sticky="w")
+
+    ingredient_label = ttk.Label(sorder_frame, text="Ingredient")
+    ingredient_label.grid(row=4, column=0, padx=5, pady=5, sticky="e")
+    ingredient_entry = ttk.Entry(sorder_frame, width=20)
+    ingredient_entry.grid(row=4, column=1, padx=5, pady=5, sticky="w")
+
+    od_label = ttk.Label(sorder_frame, text="Order Date")
+    od_label.grid(row=5, column=0, padx=5, pady=5, sticky="e")
+    od_entry = ttk.Entry(sorder_frame, width=20)
+    od_entry.grid(row=5, column=1, padx=5, pady=5, sticky="w")
+
+    dd_label = ttk.Label(sorder_frame, text="Delivery Date")
+    dd_label.grid(row=6, column=0, padx=5, pady=5, sticky="e")
+    dd_entry = ttk.Entry(sorder_frame, width=20)
+    dd_entry.grid(row=6, column=1, padx=5, pady=5, sticky="w")
+
+    exp_label = ttk.Label(sorder_frame, text="Expiry Date")
+    exp_label.grid(row=7, column=0, padx=5, pady=5, sticky="e")
+    exp_entry = ttk.Entry(sorder_frame, width=20)
+    exp_entry.grid(row=7, column=1, padx=5, pady=5, sticky="w")
+
+    price_label = ttk.Label(sorder_frame, text="Price")
+    price_label.grid(row=8, column=0, padx=5, pady=5, sticky="e")
+    price_entry = ttk.Entry(sorder_frame, width=20)
+    price_entry.grid(row=8, column=1, padx=5, pady=5, sticky="w")
+
+    # Buttons
+    add_sorders_button = ttk.Button(sorder_frame, text="Add Sorders", command=add_sorder_ui)
+    add_sorders_button.grid(row=9, column=0, columnspan=2, pady=10)
+
+    get_all_sorders_button = ttk.Button(sorder_frame, text="All Sorders", command=get_sorder_ui)
+    get_all_sorders_button.grid(row=10, column=0, columnspan=2, pady=10)
+
+    # Treeview Table with adjusted column widths
+    s1_columns = ('Supplier ID', 'Unit', 'Quantity', 'Ingredient', 'Order Date', 'Delivery Date', 'Expiry', 'Price', 'Status')
+    sorder_table = ttk.Treeview(sorder_frame, columns=s1_columns, show="headings", height=8)
+
+    for col in s1_columns:
+        sorder_table.heading(col, text=col)
+        sorder_table.column(col, width=120)  # Adjust width for better fit
+
+    sorder_table.grid(row=11, column=0, columnspan=2, pady=10, sticky="nsew")
 def verify_login(login_username,login_password):
     """Verify username and password and proceed based on role."""
     username = login_username.get()
@@ -731,7 +887,7 @@ def verify_login(login_username,login_password):
             admin()
         elif user_data['role']=='Waiter':
             messagebox.showinfo("Login Successful", f"Welcome, {user_data['role'].capitalize()}")
-            #root.destroy()
+            root.destroy()
             waiter()
         elif user_data['role']=='Manager':
             messagebox.showinfo("Login Successful", f"Welcome, {user_data['role'].capitalize()}")

@@ -438,3 +438,85 @@ def get_sorder():
         
     finally:
         conn.close()
+def add_supplier(sid, name,email):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            # Insert the sale into the sales table
+            sql = "INSERT INTO supplier (sid, name,email) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (sid,name,email))
+            
+        
+        conn.commit()  # Commit both inserts to the database
+    except Exception as e:
+        conn.rollback()  # Rollback in case of error
+        print("Database error:", e)
+        raise e
+    finally:
+        conn.close()
+def update_supplier(sid, name=None, email=None):
+    conn = connect_db()
+    
+    try:
+        # Prepare the list of updates dynamically
+        updates = []
+        values = []
+        
+        # Check each field and add to the update query if specified
+        if name:
+            updates.append("name = %s")
+            values.append(name)
+        
+        if email:
+            updates.append("email = %s")
+            values.append(email)
+        
+        
+        
+        # Check if there are updates; if not, exit early
+        if not updates:
+            return "No fields to update"
+        
+        # Prepare the full SQL command
+        updates_str = ", ".join(updates)
+        values.append(sid)  # Original uid as the last parameter for the WHERE clause
+        
+        sql = f"UPDATE supplier SET {updates_str} WHERE sid = %s"
+        
+        # Execute the query
+        with conn.cursor() as cursor:
+            cursor.execute(sql, tuple(values))
+        
+        conn.commit()
+        return "Update successful"
+    
+    finally:
+        conn.close()
+def delete_supplier(sid):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "DELETE FROM supplier WHERE sid = %s"
+            cursor.execute(sql, (sid,))  # Note the comma to make it a tuple
+        conn.commit()  # Ensure changes are committed to the database
+        return "supplier deleted successfully"
+    except Exception as e:
+        return f"Error deleting supplier: {e}"
+    finally:
+        conn.close()
+def add_sorder(sid,unit,quantity,ingredient,od,dd,exp,price):
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            # Insert the sale into the sales table
+            sql = "INSERT INTO sorder (sid,unit,quantity,ingredient,od,dd,exp,price) VALUES (%s, %s, %s,%s, %s, %s,%s, %s)"
+            cursor.execute(sql, (sid,unit,quantity,ingredient,od,dd,exp,price))
+            
+        
+        conn.commit()  # Commit both inserts to the database
+    except Exception as e:
+        conn.rollback()  # Rollback in case of error
+        print("Database error:", e)
+        raise e
+    finally:
+        conn.close()
