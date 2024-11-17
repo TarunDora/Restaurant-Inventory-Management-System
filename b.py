@@ -3,7 +3,7 @@ def connect_db():
     return pymysql.connect(
         host='localhost',  
         user='root',      
-        password='Omsai123', 
+        password='omsai', 
         database='restaurant_inventory_db',  
         cursorclass=pymysql.cursors.DictCursor 
     )
@@ -504,13 +504,13 @@ def delete_supplier(sid):
         return f"Error deleting supplier: {e}"
     finally:
         conn.close()
-def add_sorder(sid,unit,quantity,ingredient,od,dd,exp,price):
+def add_sorder(quantity,ingredient,od,dd,exp):
     conn = connect_db()
     try:
         with conn.cursor() as cursor:
             # Insert the sale into the sales table
-            sql = "INSERT INTO sorder (sid,unit,quantity,ingredient,od,dd,exp,price) VALUES (%s, %s, %s,%s, %s, %s,%s, %s)"
-            cursor.execute(sql, (sid,unit,quantity,ingredient,od,dd,exp,price))
+            
+            cursor.execute("call place_sorder(%s,%s,%s,%s,%s)",(ingredient,quantity,od,dd,exp))
             
         
         conn.commit()  # Commit both inserts to the database
@@ -518,5 +518,88 @@ def add_sorder(sid,unit,quantity,ingredient,od,dd,exp,price):
         conn.rollback()  # Rollback in case of error
         print("Database error:", e)
         raise e
+    finally:
+        conn.close()
+def expiry(input):
+    conn=connect_db()
+    cursor=conn.cursor()
+    cursor.execute("CALL check_expiry(%s)", (input,))
+    conn.commit()
+    conn.close()
+def delivery(input):
+    conn=connect_db()
+    cursor=conn.cursor()
+    cursor.execute("call update_ingredient_on_delivery(%s)", (input,))
+    conn.commit()
+    conn.close()
+def remove():
+    conn=connect_db()
+    cursor=conn.cursor()
+    cursor.execute("CALL reset_quantity_for_expired_ingredients()")
+    conn.commit()
+    conn.close()
+def get_critical_ingredients():
+    try:
+        conn = connect_db()  # Ensure connect_db() is defined and correct
+        with conn.cursor() as cursor:
+            sql = "SELECT * FROM ingredients where status<>'normal'"  # Adjust to match your actual column name
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result  # Assuming 'dname' is the first column
+            
+    except Exception as e:
+        print("Database error:", e)  # Log error details for debugging
+        raise e  # Reraise the exception for handling in get_all_dishes()
+        
+    finally:
+        conn.close()
+#--------------------
+#aggregate query
+#--------------------
+def fetch_order_data():
+    connection = connect_db()
+    cursor = connection.cursor()
+
+    query = "SELECT od, SUM(price) AS total_order_sum FROM sorder GROUP BY od"
+    cursor.execute(query)
+
+    # Fetch all results
+    results = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return results
+#-------------------
+#join query
+#-------------------
+def join_supplier():
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT s.name AS Supplier, i.name AS Ingredient FROM supplier s JOIN ingredients i ON s.sid = i.sid;"
+
+            cursor.execute(sql)  # Note the comma to make it a tuple
+            result =cursor.fetchall()
+            return result
+    except Exception as e:
+        return f"Error joining supplier: {e}"
+    finally:
+        conn.close()
+#------------------
+#nested query
+#------------------
+def nested():
+    conn = connect_db()
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT w.wid AS Waiter_ID, (SELECT COUNT(s.sid) FROM sales s WHERE s.wid = w.wid) AS Total_Sales FROM waiter w;"
+
+
+            cursor.execute(sql)  # Note the comma to make it a tuple
+            result =cursor.fetchall()
+            return result
+    except Exception as e:
+        return f"Error nesting waiters: {e}"
     finally:
         conn.close()
