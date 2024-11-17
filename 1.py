@@ -969,17 +969,17 @@ def show_login(root):
     #login_window = tk.Toplevel(root)
     #root.title("Login")
     
-    tk.Label(root, text="Username:", fg="white", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Username:", fg="grey", font=("Arial", 18)).grid(row=0, column=0, pady=20, padx=20, sticky="e")
 
 # Label for Password
-    tk.Label(root, text="Password:", fg="white", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
+    tk.Label(root, text="Password:", fg="grey", font=("Arial", 18)).grid(row=1, column=0, pady=20, padx=20, sticky="e")
 
     # Entry for Username
-    login_username = tk.Entry(root, fg="white", font=("Arial", 18), width=30)
+    login_username = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
     login_username.grid(row=0, column=1, pady=20, padx=20)
 
     # Entry for Password
-    login_password = tk.Entry(root, fg="white", font=("Arial", 18), width=30)
+    login_password = tk.Entry(root, fg="black", font=("Arial", 18), width=30)
     login_password.grid(row=1, column=1, pady=20, padx=20)
 
     # Button to login
